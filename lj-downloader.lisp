@@ -31,24 +31,37 @@
 					     (concatenate  'string
 							   ,challenge
 							   (md5_hex ,pwd))))))
+(defmacro with-clear-auth-call (call user pwd &rest args)
+  `(lj-struct-call ,call ,@args
+		   :|username| ,user
+		   :|auth_method| "clear"
+		   :|password| , pwd))
+
 
 (defmacro get-event (user pwd event-id &optional (journal user))
-    `(with-auth-call 'getevents ,user ,pwd 
+    `(with-clear-auth-call 'getevents ,user ,pwd 
 				   :|selecttype| "one" :|itemid| ,event-id
 				   :|ver| 1 :|lineendings| "unix"
 				   :|journal| ,journal))
 
+
 (defun store-events (where user pwd start-id &optional journal)
-  (let ((id start-id) (event (get-event user pwd start-id journal)))
-    (loop while (get-struct-elem event (:|events|)) do
+  (let ((id start-id) 
+	(event (get-event user pwd start-id journal))
+	(last-id (get-struct-elem 
+			(get-last-event user pwd journal) (:|events| :|itemid|))))
+     (loop while (< id last-id) do
 	 (progn 
 	   (cl-store:store event (concatenate 'string
 					      where  ;TODO add trailing slash check
 					      (write-to-string id)
 					      "-lj.ser")) 
+	   (print id)
 	   (incf id)
 	   (setf event (get-event user pwd id journal)))))) ;TODO fix journal value binding
 
+(defun get-last-event (user pwd &optional (journal user))
+  (get-event user pwd -1 journal)) 
 
 (defun get-ditemid (event)
   (+
