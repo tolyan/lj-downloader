@@ -1,6 +1,7 @@
 сделать:
 -- починить with-auth-call (get-challenge должен быть в другом месте)
 -- добавить форматирование комментов
+-- добавить квиклисповые загрузки зависимостей (s-xml-rpc, md5, flexi-streams)
 
 структура возвращаемая getcomments (см. http://code.livejournal.org/trac/livejournal/browser/trunk/cgi-bin/ljprotocol.pl):
 (:|pages|)
