@@ -44,6 +44,9 @@
 				   :|ver| 1 :|lineendings| "unix"
 				   :|journal| ,journal))
 
+(defun get-last-event (user pwd &optional (journal user))
+  (get-event user pwd -1 journal)) 
+
 (defun get-comments (user pwd event-id &optional (journal user))
   (let ((ditemid (get-ditemid (get-event user pwd event-id journal))))
     (with-clear-auth-call 'getcomments user pwd
@@ -51,10 +54,6 @@
 			  :|expand_strategy| "expand_all"
 			  :|ver| 1 :|lineendings| "unix"
 			  :|journal| journal)))
-
-(defun get-full-event (user pwd event-id journal)
-  (let ((event (get-event user pwd event-id journal)))
-    (print (get-utf-8-text event (:|events| :|event|)))))
 
 (defun store-events (where user pwd start-id &optional journal)
   (let ((id start-id) 
@@ -71,8 +70,7 @@
 	   (incf id)
 	   (setf event (get-event user pwd id journal)))))) ;TODO fix journal value binding
 
-(defun get-last-event (user pwd &optional (journal user))
-  (get-event user pwd -1 journal)) 
+
 
 (defun get-ditemid (event)
   (+
