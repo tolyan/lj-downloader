@@ -44,6 +44,17 @@
 				   :|ver| 1 :|lineendings| "unix"
 				   :|journal| ,journal))
 
+(defun get-comments (user pwd event-id &optional (journal user))
+  (let ((ditemid (get-ditemid (get-event user pwd event-id journal))))
+    (with-clear-auth-call 'getcomments user pwd
+			  :|ditemid| ditemid
+			  :|expand_strategy| "expand_all"
+			  :|ver| 1 :|lineendings| "unix"
+			  :|journal| journal)))
+
+(defun get-full-event (user pwd event-id journal)
+  (let ((event (get-event user pwd event-id journal)))
+    (print (get-utf-8-text event (:|events| :|event|)))))
 
 (defun store-events (where user pwd start-id &optional journal)
   (let ((id start-id) 
@@ -70,5 +81,22 @@
 
 
 (defmacro get-utf-8-text (struct path)
-  `(flexi-streams:octets-to-string (get-struct-elem ,struct ,path)
-				  :external-format :utf-8))
+  (with-gensyms (value)
+  `(let ((value (get-struct-elem ,struct ,path)))
+    (if (typep value 'vector)
+	 (flexi-streams:octets-to-string value
+				  :external-format :utf-8)
+	 value))))
+
+
+
+(defun event-pretty (event) 
+  (when event
+    (list
+     (cons 'url (get-struct-elem event (:|events| :|url|)))
+     (cons 'anum (get-struct-elem event (:|events| :|anum|)))
+     (cons 'logtime (get-struct-elem event (:|events| :|logtime|)))
+     (cons 'eventime (get-struct-elem event (:|events| :|eventtime|)))
+     (cons 'itemid (get-struct-elem event (:|events| :|itemid|)))
+     (cons 'subject  (get-utf-8-text event (:|events| :|subject|)))
+     (cons 'event  (get-utf-8-text event (:|events| :|event|))))))
