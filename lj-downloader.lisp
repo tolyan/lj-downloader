@@ -20,7 +20,7 @@
 			 (last* arg2))
 		   (list result arg1 (first* arg2))))))
    `(,@(expand-get struct path))))
-	    
+   
 (defmacro  with-auth-call (call user pwd &rest args)
   (let ((challenge (get-struct-elem (get-challenge) (:|challenge|))))
     `(lj-struct-call ,call  ,@args
@@ -70,31 +70,43 @@
 	   (incf id)
 	   (setf event (get-event user pwd id journal)))))) ;TODO fix journal value binding
 
-
-
 (defun get-ditemid (event)
   (+
    (* 256 (get-struct-elem event (:|events| :|itemid|)))
    (get-struct-elem event (:|events| :|anum|))))
 
+(defun event-alist (event)
+ (labels ((event-pretty (event args) 
+	    (when event
+	      (loop for x in args 
+		 collect (cons x (get-utf-8-text event (x)))))))
+   (event-pretty event '(:|event|))))
 
 (defmacro get-utf-8-text (struct path)
   (with-gensyms (value)
   `(let ((value (get-struct-elem ,struct ,path)))
-    (if (typep value 'vector)
+    (if (and (typep value 'vector) (not (typep value 'simple-array)))
 	 (flexi-streams:octets-to-string value
 				  :external-format :utf-8)
 	 value))))
 
+(defun comments-alist (comments)
+  (labels ((comment-pretty (comment args)
+    (when comment
+      (cons
+       (loop for x in args 
+	  collect (cons x (get-utf-8-text comment (x))))
+       (comment-pretty (car (get-struct-elem comment (:|children|))) args)))))
+    (loop for struct in comments
+       collect (comment-pretty struct '(:|datepostunix|
+					:|is_loaded|
+					:|is_show|
+					:|datepost|
+					:|postername|
+					:|dtalkid|
+					:|level|
+					:|subject|
+					:|body|
+					:|state|
+					:|posterid|)))))
 
-
-(defun event-pretty (event) 
-  (when event
-    (list
-     (cons 'url (get-struct-elem event (:|events| :|url|)))
-     (cons 'anum (get-struct-elem event (:|events| :|anum|)))
-     (cons 'logtime (get-struct-elem event (:|events| :|logtime|)))
-     (cons 'eventime (get-struct-elem event (:|events| :|eventtime|)))
-     (cons 'itemid (get-struct-elem event (:|events| :|itemid|)))
-     (cons 'subject  (get-utf-8-text event (:|events| :|subject|)))
-     (cons 'event  (get-utf-8-text event (:|events| :|event|))))))
