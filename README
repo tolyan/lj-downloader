@@ -1,8 +1,7 @@
 сделать:
 -- починить with-auth-call (get-challenge должен быть в другом месте)
--- исправить форматирование комментов (может быть несколько комментов на одном уровне в дереве)
--- доделать нормальное форматирование постов
 -- добавить квиклисповые загрузки зависимостей (s-xml-rpc, md5, flexi-streams)
+-- вставить проверку количества скачены комментов с reply_count
 
 структура возвращаемая getcomments (см. http://code.livejournal.org/trac/livejournal/browser/trunk/cgi-bin/ljprotocol.pl):
 (:|pages|)
@@ -19,5 +18,18 @@
 	(:|state|)
 	(:|posterid|)
 	(:|children|))
+
+структура event:
+(:|reply_count|) 
+(:|event_timestamp|) 
+(:|url|) 
+(:|anum|) 
+(:|logtime|) 
+(:|props| . #<XML-RPC-STRUCT (:|revtime|) (:|interface|) (:|personifi_tags|) (:|revnum|) (:|commentalter|)>)
+(:|eventtime|) 
+(:|event|) 
+(:|subject|) 
+(:|itemid|)
+
 
 
