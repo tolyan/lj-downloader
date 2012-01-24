@@ -55,20 +55,24 @@
 			  :|ver| 1 :|lineendings| "unix"
 			  :|journal| journal)))
 
-(defun store-events (where user pwd start-id &optional journal)
+(defun store-events (dir user pwd start-id  journal)
   (let ((id start-id) 
-	(event (get-event user pwd start-id journal))
 	(last-id (get-struct-elem 
 			(get-last-event user pwd journal) (:|events| :|itemid|))))
      (loop while (< id last-id) do
 	 (progn 
-	   (cl-store:store event (concatenate 'string
-					      where  ;TODO add trailing slash check
-					      (write-to-string id)
-					      "-lj.ser")) 
+	   (let ((output (get-full-post user pwd id journal)))
+	     (when output 
+	       (with-open-file (file (concatenate 'string
+						 dir
+						 (write-to-string id)
+						 ".list")
+				     :direction :output
+				     :if-does-not-exist :create
+				     :if-exists :overwrite)
+		 (print output file))))
 	   (print id)
-	   (incf id)
-	   (setf event (get-event user pwd id journal)))))) ;TODO fix journal value binding
+	   (incf id)))))
 
 (defun get-ditemid (event)
   (+
@@ -79,8 +83,17 @@
  (labels ((event-pretty (event args) 
 	    (when event
 	      (loop for x in args 
-		 collect (cons x (get-utf-8-text event (x)))))))
-   (event-pretty event '(:|event|))))
+		 collect (cons x (get-utf-8-text event (:|events| x)))))))
+   (event-pretty event '(:|reply_count| 
+			 :|event_timestamp| 
+			 :|url|
+			 :|anum| 
+			 :|logtime| 
+;			 :|props|
+			 :|eventtime| 
+			 :|event| 
+			 :|subject| 
+			 :|itemid|))))
 
 (defmacro get-utf-8-text (struct path)
   (with-gensyms (value)
@@ -91,22 +104,30 @@
 	 value))))
 
 (defun comments-alist (comments)
-  (labels ((comment-pretty (comment args)
+  "Converts comments xml-rpc-struct into simple alist tree structure"
+  (labels ((comments-pre (comment args)
     (when comment
       (cons
        (loop for x in args 
 	  collect (cons x (get-utf-8-text comment (x))))
-       (comment-pretty (car (get-struct-elem comment (:|children|))) args)))))
+       (comments-alist (get-struct-elem comment (:|children|)))))))
     (loop for struct in comments
-       collect (comment-pretty struct '(:|datepostunix|
-					:|is_loaded|
-					:|is_show|
-					:|datepost|
-					:|postername|
-					:|dtalkid|
-					:|level|
-					:|subject|
-					:|body|
-					:|state|
-					:|posterid|)))))
+       collect (comments-pre struct '(:|datepostunix|
+				      :|is_loaded|
+				      :|is_show|
+				      :|datepost|
+				      :|postername|
+				      :|dtalkid|
+				      :|level|
+				      :|subject|
+				      :|body|
+				      :|state|
+				      :|posterid|)))))
 
+(defun get-full-post (usr pwd itemid journal)
+  (let ((event (get-event usr pwd itemid journal)))
+    (when (get-utf-8-text event (:|events|))
+      (cons (event-alist event)
+	    (comments-alist
+	     (get-struct-elem (get-comments usr pwd itemid journal)
+			      (:|comments|)))))))
