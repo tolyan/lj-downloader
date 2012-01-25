@@ -62,9 +62,33 @@ and elements on even position used as values"
   (cond ((listp lst) (reverse (cdr (reverse lst))))
 	(t lst)))
 
-(defun tag (keyword)
+(defun unscreen (keyword)
   (let ((tag (write-to-string keyword)))
     (subseq tag 2 (1- (length tag)))))
+
+(defun start-tag (word)
+  (concatenate 'string 
+	       "<" 
+	       (if (stringp word) 
+		   word
+		   (write-to-string word))
+	       ">"))
+
+(defun end-tag (word)
+  (concatenate 'string 
+	       "</" 
+	       (if (stringp word) 
+		   word
+		   (write-to-string word))
+	       ">"))
+
+(defun escape (content)
+  (cond ((stringp content) (concatenate 'string
+					"<![CDATA["
+					content
+					"]]>"))
+	((numberp content) (write-to-string content))
+	(t "UNSUPPORTED TYPE OF CONTENT")))
 
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
