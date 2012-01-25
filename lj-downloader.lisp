@@ -131,3 +131,13 @@
 	    (comments-alist
 	     (get-struct-elem (get-comments usr pwd itemid journal)
 			      (:|comments|)))))))
+
+
+(defun alist-to-xml (alist &key (pretty t))
+  (with-output-to-string (stream)
+    (write-line (start-tag (car alist)) stream) 
+    (if pretty (write-char #\Tab stream))
+    (write-line (escape (cdr alist)) stream)
+    (write-line (end-tag (car alist)) stream)))
+
+		 

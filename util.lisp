@@ -62,6 +62,10 @@ and elements on even position used as values"
   (cond ((listp lst) (reverse (cdr (reverse lst))))
 	(t lst)))
 
+(defun tag (keyword)
+  (let ((tag (write-to-string keyword)))
+    (subseq tag 2 (1- (length tag)))))
+
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
   `(let ,(loop for n in names collect `(,n (gensym)))
