@@ -1,0 +1,5 @@
+(ql:quickload "s-xml-rpc")
+(ql:quickload "flexi-streams")
+(ql:quickload "md5")
+(load "lisp/lj-downloader/util.lisp")
+(load "lisp/lj-downloader/lj-downloader.lisp") 

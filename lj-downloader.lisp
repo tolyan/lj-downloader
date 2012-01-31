@@ -1,3 +1,5 @@
+(ql:quickload "s-xml-rpc")
+
 (defun lj-call (name &optional struct)
   (s-xml-rpc:xml-rpc-call (s-xml-rpc:encode-xml-rpc-call 
 			   (concatenate 'string 
@@ -15,7 +17,7 @@
   (labels ((expand-get (arg1 arg2)
 	     (let ((result 's-xml-rpc:get-xml-rpc-struct-member))
 	       (if (> (length arg2) 1)
-		   (list result (list 'car (prepare-get struct 
+		   (list result (list 'car (expand-get struct 
 							(all-but-last arg2))) 
 			 (last* arg2))
 		   (list result arg1 (first* arg2))))))
@@ -132,12 +134,20 @@
 	     (get-struct-elem (get-comments usr pwd itemid journal)
 			      (:|comments|)))))))
 
-
-(defun alist-to-xml (alist &key (pretty t))
-  (with-output-to-string (stream)
-    (write-line (start-tag (car alist)) stream) 
-    (if pretty (write-char #\Tab stream))
-    (write-line (escape (cdr alist)) stream)
-    (write-line (end-tag (car alist)) stream)))
+(let ((stream (make-string-output-stream)))
+  (defun alist-to-xml-stream (alist &optional (level 0) &key (pretty t))
+    (write-tab-line (start-tag (car alist)) level stream) 
+    (if (listp (cdr alist))
+	(alist-to-xml-stream (cdr alist) (1+ level) :pretty pretty) 
+	(write-tab-line (escape (cdr alist)) (1+ level) stream))
+    (write-tab-line (end-tag (car alist)) level stream)
+    (get-output-stream-string stream)
+    (close stream))
+  
+  (defun close-stream ()
+    (close stream))
+  
+   (defun flush-stream ()
+    (get-output-stream-string stream)))
 
 		 

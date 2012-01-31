@@ -1,5 +1,7 @@
 ;; Utils I found usefull
 
+(ql:quickload "md5")
+
 ;стырил отсюда http://common-lisp.net/project/clbuild/mirror/ironclad/util.lisp
 (defun byte-array-to-hex-string (vector &key (start 0) end (element-type 'base-char))
   "Return a string containing the hexadecimal representation of the
@@ -89,6 +91,11 @@ and elements on even position used as values"
 					"]]>"))
 	((numberp content) (write-to-string content))
 	(t "UNSUPPORTED TYPE OF CONTENT")))
+
+(defun write-tab-line (string level stream)
+  (dotimes (temp level)
+    (write-char #\Tab stream))
+  (write-line string stream))
 
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
