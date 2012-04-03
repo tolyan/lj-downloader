@@ -1,6 +1,6 @@
 ;; Utils I found usefull
 
-(ql:quickload "md5")
+(in-package :lj-downloader)
 
 ;стырил отсюда http://common-lisp.net/project/clbuild/mirror/ironclad/util.lisp
 (defun byte-array-to-hex-string (vector &key (start 0) end (element-type 'base-char))
