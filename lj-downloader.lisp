@@ -1,3 +1,7 @@
+(ql:quickload "s-xml-rpc")
+(ql:quickload "cl-store")
+(ql:quickload "flexi-streams")
+
 (defun lj-call (name &optional struct)
   (s-xml-rpc:xml-rpc-call (s-xml-rpc:encode-xml-rpc-call 
 			   (concatenate 'string 
