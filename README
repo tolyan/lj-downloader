@@ -1,0 +1,36 @@
+сделать:
+-- починить with-auth-call (get-challenge должен быть в другом месте)
+-- добавить квиклисповые загрузки зависимостей (s-xml-rpc, md5, flexi-streams)
+-- вставить проверку количества скачены комментов с reply_count
+-- оформить для сторонних пользователей (завернуть в пакет, комментарии к использованию)
+
+структура возвращаемая getcomments (см. http://code.livejournal.org/trac/livejournal/browser/trunk/cgi-bin/ljprotocol.pl):
+(:|pages|)
+(:|comments|
+	(:|datepostunix|)
+	(:|is_loaded|)
+	(:|is_show|)
+	(:|datepost|)
+	(:|postername|)
+	(:|dtalkid|)
+	(:|level|)
+	(:|subject|)
+	(:|body|)
+	(:|state|)
+	(:|posterid|)
+	(:|children|))
+
+структура event:
+(:|reply_count|) 
+(:|event_timestamp|) 
+(:|url|) 
+(:|anum|) 
+(:|logtime|) 
+(:|props| . #<XML-RPC-STRUCT (:|revtime|) (:|interface|) (:|personifi_tags|) (:|revnum|) (:|commentalter|)>)
+(:|eventtime|) 
+(:|event|) 
+(:|subject|) 
+(:|itemid|)
+
+
+
