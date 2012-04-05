@@ -97,6 +97,17 @@ and elements on even position used as values"
     (write-char #\Tab stream))
   (write-line string stream))
 
+(let ((str))
+  (defun builder-reset (&optional s)
+    (setq str (coerce s 'list)))
+  (defun builder-append (s)
+    (setq str (concatenate 'list
+			   str 
+			   (coerce s 'list))))
+  (defun builder-result ()
+      (concatenate 'string str)))
+
+
 (defun cons-to-xml (cell)
   (when cell
     (let ((name (unscreen (car cell))))
@@ -104,6 +115,15 @@ and elements on even position used as values"
 		   (start-tag name)
 		   (escape  (cdr cell))
 		   (end-tag name)))))
+
+(defun alist-to-xml (lst)
+  (when lst
+    (builder-reset)
+    (dolist (item lst)
+      (builder-append 
+       (cons-to-xml item)))
+    (builder-result)))
+	  
 
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
