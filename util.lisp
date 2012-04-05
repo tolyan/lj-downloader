@@ -97,6 +97,14 @@ and elements on even position used as values"
     (write-char #\Tab stream))
   (write-line string stream))
 
+(defun cons-to-xml (cell)
+  (when cell
+    (let ((name (unscreen (car cell))))
+      (concatenate 'string
+		   (start-tag name)
+		   (escape  (cdr cell))
+		   (end-tag name)))))
+
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
   `(let ,(loop for n in names collect `(,n (gensym)))
