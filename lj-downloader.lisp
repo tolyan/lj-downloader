@@ -101,6 +101,9 @@
 				      :|posterid|)))))
 
 (defun get-full-post (usr pwd itemid journal)
+  "Returns full post with comments in alist format. usr - user name for authentication. 
+pwd - password in plain text for authentication. itemid - id of post or -1 for latest post.
+journal - name of the journal to download from."
   (let ((event (get-event usr pwd itemid journal)))
     (when (get-utf-8-text event (:|events|))
       (cons (event-to-alist event)
