@@ -116,15 +116,6 @@ and elements on even position used as values"
 		   (escape  (cdr cell))
 		   (end-tag name)))))
 
-(defun alist-to-xml (lst)
-  (when lst
-    (builder-reset)
-    (dolist (item lst)
-      (builder-append 
-       (cons-to-xml item)))
-    (builder-result)))
-	  
-
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
   `(let ,(loop for n in names collect `(,n (gensym)))

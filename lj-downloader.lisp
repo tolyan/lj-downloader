@@ -111,6 +111,10 @@ journal - name of the journal to download from."
 	     (get-struct-elem (get-comments usr pwd itemid journal)
 			      (:|comments|)))))))
 
-
-
-		 
+(defun post-to-xml (lst)
+  (when lst
+    (builder-reset (start-tag "post"))
+    (dolist (item (car lst))
+      (builder-append (cons-to-xml item)))
+    (builder-append (end-tag "post"))
+    (builder-result)))
