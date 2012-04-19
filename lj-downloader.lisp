@@ -68,16 +68,16 @@
 	    (when event
 	      (loop for x in args 
 		 collect (cons x (get-utf-8-text event (:|events| x)))))))
-   (event-pretty event '(:|reply_count| 
-			 :|event_timestamp| 
-			 :|url|
-			 :|anum| 
-			 :|logtime| 
-;			 :|props|
-			 :|eventtime| 
-			 :|event| 
-			 :|subject| 
-			 :|itemid|))))
+   (cons 'post (event-pretty event '(:|reply_count| 
+				     :|event_timestamp| 
+				     :|url|
+				     :|anum| 
+				     :|logtime| 
+					;			 :|props|
+				     :|eventtime| 
+				     :|event| 
+				     :|subject| 
+				     :|itemid|)))))
 
 (defun comments-to-alist (comments)
   "Converts comments xml-rpc-struct into simple alist tree structure"
@@ -86,19 +86,22 @@
       (cons
        (loop for x in args 
 	  collect (cons x (get-utf-8-text comment (x))))
-       (comments-to-alist (get-struct-elem comment (:|children|)))))))
+	     (let ((result (get-struct-elem comment (:|children|))))
+	       (if (not (eq nil result))
+		   (cons 'children (comments-to-alist result))))))))
     (loop for struct in comments
-       collect (comments-pre struct '(:|datepostunix|
-				      :|is_loaded|
-				      :|is_show|
-				      :|datepost|
-				      :|postername|
-				      :|dtalkid|
-				      :|level|
-				      :|subject|
-				      :|body|
-				      :|state|
-				      :|posterid|)))))
+       collect (cons 'comment
+		     (comments-pre struct '(:|datepostunix|
+					    :|is_loaded|
+					    :|is_show|
+					    :|datepost|
+					    :|postername|
+					    :|dtalkid|
+					    :|level|
+					    :|subject|
+					    :|body|
+					    :|state|
+					    :|posterid|))))))
 
 (defun get-full-post (usr pwd itemid journal)
   "Returns full post with comments in alist format. usr - user name for authentication. 

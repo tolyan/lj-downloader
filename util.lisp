@@ -120,3 +120,10 @@ and elements on even position used as values"
 (defmacro with-gensyms ((&rest names) &body body)
   `(let ,(loop for n in names collect `(,n (gensym)))
      ,@body))
+
+(defmacro call-if (what expr)
+  (with-gensyms (result)
+      `(let ((result ,expr))
+	 (if (not (eq result nil))
+	     (,what result)))))
+		 
