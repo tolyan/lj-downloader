@@ -97,6 +97,21 @@ and elements on even position used as values"
     (write-char #\Tab stream))
   (write-line string stream))
 
+(defun alist-to-xml (alist stream &optional indent)
+  (if alist
+      (progn 
+	(if (listp (cdar alist))
+	    (progn
+	      (format stream "<~A> ~%" (caar alist))
+	      (if indent (format stream "~@T"))
+	      (alist-to-xml (cdar alist) stream indent)
+	      (format stream "</~A> ~%" (caar alist)))
+	    (list-to-tag stream (car alist)))
+	(alist-to-xml (rest alist) stream indent))))
+	 
+(defun list-to-tag (stream lst)
+  (format stream "<~A> ~A </~A> ~%" (car lst) (cdr lst) (car lst)))
+
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
   `(let ,(loop for n in names collect `(,n (gensym)))
