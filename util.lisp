@@ -1,6 +1,6 @@
 ;; Utils I found usefull
 
-(ql:quickload "md5")
+(in-package :lj-downloader)
 
 ;стырил отсюда http://common-lisp.net/project/clbuild/mirror/ironclad/util.lisp
 (defun byte-array-to-hex-string (vector &key (start 0) end (element-type 'base-char))
@@ -68,22 +68,6 @@ and elements on even position used as values"
   (let ((tag (write-to-string keyword)))
     (subseq tag 2 (1- (length tag)))))
 
-(defun start-tag (word)
-  (concatenate 'string 
-	       "<" 
-	       (if (stringp word) 
-		   word
-		   (write-to-string word))
-	       ">"))
-
-(defun end-tag (word)
-  (concatenate 'string 
-	       "</" 
-	       (if (stringp word) 
-		   word
-		   (write-to-string word))
-	       ">"))
-
 (defun escape (content)
   (cond ((stringp content) (concatenate 'string
 					"<![CDATA["
@@ -91,11 +75,6 @@ and elements on even position used as values"
 					"]]>"))
 	((numberp content) (write-to-string content))
 	(t "UNSUPPORTED TYPE OF CONTENT")))
-
-(defun write-tab-line (string level stream)
-  (dotimes (temp level)
-    (write-char #\Tab stream))
-  (write-line string stream))
 
 (defun alist-to-xml (alist stream &optional indent)
   (if alist
@@ -112,7 +91,22 @@ and elements on even position used as values"
 (defun list-to-tag (stream lst)
   (format stream "<~A> ~A </~A> ~%" (car lst) (cdr lst) (car lst)))
 
+(defun cons-to-xml (cell)
+  (when cell
+    (let ((name (unscreen (car cell))))
+      (concatenate 'string
+		   (start-tag name)
+		   (escape  (cdr cell))
+		   (end-tag name)))))
+
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
   `(let ,(loop for n in names collect `(,n (gensym)))
      ,@body))
+
+(defmacro call-if (what expr)
+  (with-gensyms (result)
+      `(let ((result ,expr))
+	 (if (not (eq result nil))
+	     (,what result)))))
+		 
