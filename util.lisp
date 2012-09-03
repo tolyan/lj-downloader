@@ -33,6 +33,8 @@ the element-type of the returned string."
 (defun md5_hex (input)
   (byte-array-to-hex-string (md5:md5sum-sequence input)))
 
+
+
 (defun print-hash-entry (key value)
     (format t "The value associated with the key ~S is ~S~%" key value)) 
 
@@ -98,6 +100,27 @@ and elements on even position used as values"
 		   (start-tag name)
 		   (escape  (cdr cell))
 		   (end-tag name)))))
+
+(defun xml-rpc-alist-full (struct)
+  (labels ((rec (struct acc)
+	   (if struct
+	       (acons (caar struct) 
+		      (if (s-xml-rpc:xml-rpc-struct-p (cdar struct))
+			  (s-xml-rpc:xml-rpc-struct-alist (cdar struct))
+			  (cdar struct))
+		      (rec (rest struct) acc)))))
+    (if (s-xml-rpc:xml-rpc-struct-p struct)
+	(rec (s-xml-rpc:xml-rpc-struct-alist struct) nil)
+	(rec struct nil))))
+
+
+
+
+      (if (s-xml-rpc:xml-rpc-struct-p (cdar struct))
+	  (acons (caar struct)
+		 (s-xml-rpc:xml-rpc-struct-alist (cdar struct))
+		 
+
 
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)

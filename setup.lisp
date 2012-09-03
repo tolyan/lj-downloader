@@ -8,8 +8,8 @@
 
 ;disable style-warnings
 (declaim #+sbcl(sb-ext:muffle-conditions style-warning))
-(load "/home/anglerhood/repos/lj-downloader/util.lisp")
-(load "/home/anglerhood/repos/lj-downloader/lj-downloader.lisp") 
+(load "/home/anglerhood/lisp/lj-downloader/util.lisp")
+(load "/home/anglerhood/lisp/lj-downloader/lj-downloader.lisp") 
 ;enable style-warnings
 (declaim #+sbcl(sb-ext:unmuffle-conditions style-warning))
 
