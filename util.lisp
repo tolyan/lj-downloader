@@ -103,22 +103,19 @@ and elements on even position used as values"
 
 (defun xml-rpc-alist-full (struct)
   (labels ((rec (struct acc)
-	   (if struct
-	       (acons (caar struct) 
-		      (if (s-xml-rpc:xml-rpc-struct-p (cdar struct))
-			  (s-xml-rpc:xml-rpc-struct-alist (cdar struct))
-			  (cdar struct))
-		      (rec (rest struct) acc)))))
+	     (if struct
+		 (acons (caar struct) 
+			(if (consp (cdar struct))
+			    (if (s-xml-rpc:xml-rpc-struct-p (cadar struct))
+				(rec (s-xml-rpc:xml-rpc-struct-alist (cadar struct)) acc))
+			    (if (s-xml-rpc:xml-rpc-struct-p (cdar struct))
+				(rec (s-xml-rpc:xml-rpc-struct-alist (cdar struct)) acc)
+				(cdar struct)))
+			(rec (rest struct) acc)))))
+	   	         
     (if (s-xml-rpc:xml-rpc-struct-p struct)
 	(rec (s-xml-rpc:xml-rpc-struct-alist struct) nil)
 	(rec struct nil))))
-
-
-
-
-      (if (s-xml-rpc:xml-rpc-struct-p (cdar struct))
-	  (acons (caar struct)
-		 (s-xml-rpc:xml-rpc-struct-alist (cdar struct))
 		 
 
 
