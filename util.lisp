@@ -107,7 +107,12 @@ and elements on even position used as values"
 		 (acons (caar struct) 
 			(if (consp (cdar struct))
 			    (if (s-xml-rpc:xml-rpc-struct-p (cadar struct))
-				(rec (s-xml-rpc:xml-rpc-struct-alist (cadar struct)) acc))
+				(progn
+				  (dolist (x (cadar struct))
+				    (push (rec (s-xml-rpc:xml-rpc-struct-alist x) acc)
+					  acc))
+				  (nreverse acc)))
+				  			  
 			    (if (s-xml-rpc:xml-rpc-struct-p (cdar struct))
 				(rec (s-xml-rpc:xml-rpc-struct-alist (cdar struct)) acc)
 				(cdar struct)))
@@ -116,7 +121,25 @@ and elements on even position used as values"
     (if (s-xml-rpc:xml-rpc-struct-p struct)
 	(rec (s-xml-rpc:xml-rpc-struct-alist struct) nil)
 	(rec struct nil))))
+
+(defun rpc-to-list (struct acc)
+  (if struct
+      (nconc (car struct) acc))
 		 
+(defun alist-if (struct)
+  (if (s-xml-rpc:xml-rpc-struct-p struct)
+      (s-xml-rpc:xml-rpc-struct-alist struct)))
+
+(defun deep-alist (struct)
+  (let ((acc nil))
+    (dolist (x (alist-if struct))
+      (push 
+       (if (consp x)
+	   (cons (car x) 
+		 
+		 
+       acc))
+    (nreverse acc)))
 
 
 ;Peter Seibel's with-gensyms
