@@ -101,43 +101,19 @@ and elements on even position used as values"
 		   (escape  (cdr cell))
 		   (end-tag name)))))
 
-(defun xml-rpc-alist-full (struct)
-  (labels ((rec (struct acc)
-	     (if struct
-		 (acons (caar struct) 
-			(if (consp (cdar struct))
-			    (if (s-xml-rpc:xml-rpc-struct-p (cadar struct))
-				(progn
-				  (dolist (x (cadar struct))
-				    (push (rec (s-xml-rpc:xml-rpc-struct-alist x) acc)
-					  acc))
-				  (nreverse acc)))
-				  			  
-			    (if (s-xml-rpc:xml-rpc-struct-p (cdar struct))
-				(rec (s-xml-rpc:xml-rpc-struct-alist (cdar struct)) acc)
-				(cdar struct)))
-			(rec (rest struct) acc)))))
-	   	         
-    (if (s-xml-rpc:xml-rpc-struct-p struct)
-	(rec (s-xml-rpc:xml-rpc-struct-alist struct) nil)
-	(rec struct nil))))
-
-(defun rpc-to-list (struct acc)
-  (if struct
-      (nconc (car struct) acc))
-		 
-(defun alist-if (struct)
-  (if (s-xml-rpc:xml-rpc-struct-p struct)
-      (s-xml-rpc:xml-rpc-struct-alist struct)))
-
-(defun deep-alist (struct)
+(defun deep-xml-rpc-alist (struct)
   (let ((acc nil))
-    (dolist (x (alist-if struct))
+    (dolist (x (if (s-xml-rpc:xml-rpc-struct-p struct)
+		   (s-xml-rpc:xml-rpc-struct-alist struct)
+		   struct))
       (push 
-       (if (consp x)
-	   (cons (car x) 
-		 
-		 
+       (if (consp (cdr x))
+	   (cons (car x)
+		 (let ((cca nil))
+		   (dolist (y (cdr x))
+		     (push (deep-alist y) cca))
+		   (nreverse cca)))
+	   x)
        acc))
     (nreverse acc)))
 
