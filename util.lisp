@@ -89,6 +89,17 @@ and elements on even position used as values"
 	      (format stream "</~A> ~%" (caar alist)))
 	    (list-to-tag stream (car alist)))
 	(alist-to-xml (rest alist) stream indent))))
+
+(defun list-to-xml (alist stream &optional indent)
+  (dolist (x alist)
+    (format stream "<~A>" (car x))
+    (format stream "~A"
+	    (if (listp (cdr x))
+		(progn 
+		  (format stream "~@T")
+		  (list-to-xml (cdr x) stream indent))
+		(cdr x)))
+    (format stream "</~A> ~%" (car x))))
 	 
 (defun list-to-tag (stream lst)
   (format stream "<~A> ~A </~A> ~%" (car lst) (cdr lst) (car lst)))
@@ -106,17 +117,24 @@ and elements on even position used as values"
     (dolist (x (if (s-xml-rpc:xml-rpc-struct-p struct)
 		   (s-xml-rpc:xml-rpc-struct-alist struct)
 		   struct))
-      (push 
-       (if (consp (cdr x))
-	   (cons (car x)
-		 (let ((cca nil))
-		   (dolist (y (cdr x))
-		     (push (deep-alist y) cca))
-		   (nreverse cca)))
-	   x)
+      (push
+       (cond ((consp (cdr x))
+	      (cons (car x)
+	     	    (let ((cca nil))
+	     	      (dolist (y (cdr x))
+	     		(push (deep-xml-rpc-alist y) cca))
+	     	      (nreverse cca))))
+	     ((s-xml-rpc:xml-rpc-struct-p (cdr x))
+	      (cons (car x)
+		    (deep-xml-rpc-alist 
+		     (s-xml-rpc:xml-rpc-struct-alist (cdr x)))))
+	     (t x))
        acc))
     (nreverse acc)))
 
+(defmacro with-log (form)
+    (format t "~A ~%" form)
+     `(,@form))
 
 ;Peter Seibel's with-gensyms
 (defmacro with-gensyms ((&rest names) &body body)
